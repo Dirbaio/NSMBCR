@@ -1,0 +1,2 @@
+make CODEADDR=0x021901E0 && mono "/home/dirbaio/NSMB-Editor/NSMBe4/bin/Release/NSMBe5.exe" nsmb.nds asmpatch
+

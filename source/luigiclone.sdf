@@ -1,0 +1,12 @@
+@Spawn 2 players
+repl_020069B4:
+	mov r2, #3
+	str r2, [r13, #0x28]
+	bx lr
+	
+@ Force 2nd player to use player 1's view data
+@ (Or something like that...?)
+hook_02108E14:
+	mov r3, #0
+	strb r3, [r1, #0x1E]
+	bx lr

@@ -1,0 +1,70 @@
+#include <nds.h>
+#include <stdio.h>
+#include "wavplayer.h"
+#include <fat.h>
+
+const char* modes[] = 
+{
+	"To beginning",
+	"To same pos",
+	"On loop end",
+	"On beat end to beginning",
+	"On beat end to same pos",
+	"On bar end to beginning",
+	"On bar end to same pos",
+};
+
+int main(void)
+{
+	consoleDemoInit();
+	fatInitDefault();
+	defaultExceptionHandler();
+	
+	iprintf("Hello World!");
+	
+	wavPlayer p ("/lol.pcm");
+	
+	int loop = 0;
+	int oldloop = 0;
+	p.setLoopPart(0, 0);
+	int mode = 0;
+	int avgcpu = 0;
+	
+	while(1) {
+		timerStart(2, ClockDivider_1024, 0, NULL);
+		p.update();
+		int el =  timerElapsed(2);
+		int shit = BUS_CLOCK / 100 / 60 / 1024;
+		int dd = el/shit;
+		avgcpu = (avgcpu * 19 + el) / 20;
+		int dd2 = avgcpu/shit;
+		printf("\x1b[16;1HCPU: %d %   ", dd);
+		printf("\x1b[17;1HCPU AVG: %d %    ", dd2);
+		printf("\x1b[5;1HLOOP: %d    ", loop);
+		printf("\x1b[7;1HMODE: %d    ", mode);
+		printf("\x1b[8;1H      %s                  ", modes[mode]);
+		timerStop(2);
+
+		scanKeys();
+		int k = keysDown();
+		
+		if(k & KEY_DOWN) loop--;
+		if(k & KEY_UP) loop++;
+		if(k & KEY_LEFT) mode--;
+		if(k & KEY_RIGHT) mode++;
+		
+		if(loop < 0) loop = 0;
+		if(loop > 7) loop = 7;
+		if(mode < 0) mode = 0;
+		if(mode > 6) mode = 6;
+		
+		if(loop != oldloop)
+		{
+			p.setLoopPart(loop, mode);
+			oldloop = loop;
+		}
+		
+		swiWaitForVBlank();
+	}
+
+}

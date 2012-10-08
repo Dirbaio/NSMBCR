@@ -10,3 +10,8 @@
 *.lai
 *.la
 *.a
+
+*.nds
+*.elf
+build/
+bak/
