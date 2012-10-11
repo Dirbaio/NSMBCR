@@ -2,7 +2,7 @@
 #include "nsmb.h"
 
 extern "C" {
-	void myprintf(u16 something[2], u16* screenPtr, const char* str, ...);
+	void nds_printf(u16 something[2], u16* screenPtr, const char* str, ...);
 }
 
 #define WHITE 0xD000
@@ -36,8 +36,8 @@ void debugScreenRamViewer()
 	if(pos > 7) pos = 7;
 	if(pos < 0) pos = 0;
 	
-	myprintf(something, *topScreenPtr + 33, "%08x - RAM VIEWER", ptr);
-	myprintf(something, *topScreenPtr + 65+7-pos, "^");
+	nds_printf(something, *topScreenPtr + 33, "%08x - RAM VIEWER", ptr);
+	nds_printf(something, *topScreenPtr + 65+7-pos, "^");
 	
 /*	if(ptr == newptr && !first)
 		return;
@@ -51,6 +51,6 @@ void debugScreenRamViewer()
 		else
 			something[0] = something[1] = GREEN;
 			
-		myprintf(something, *topScreenPtr + i*2+4*32, "%02x", *newptr++);
+		nds_printf(something, *topScreenPtr + i*2+4*32, "%02x", *newptr++);
 	}
 }
