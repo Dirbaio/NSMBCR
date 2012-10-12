@@ -66,9 +66,13 @@ b 1f
 @	print "OpenFileFast %r0% %r1% %r2%"
 @	bx lr
 
+
+@=================================
+@=================================
+
+
 hook_02006970:
 	@Complicated printing from stack in here :(
-	@I hope I got it right nao.
 	print "LoadLevel %r0% %r1%"
 	print "    World %r2%";
 	print "    Level %r3%";
@@ -92,9 +96,6 @@ hook_02006970:
 	sub sp, sp, #14*4
 
 	bx lr
-	
-afdansafdub_020D08DC_ov_08:
-	bx lr
 
 hook_020A2EF8:
 	print "StageScene::onDelete %r0%"
@@ -104,34 +105,47 @@ hook_020A3318:
 	print "StageScene::onCreate %r0%"
 	bx lr
 
-/*
-hook_02044D78:
-	print "free %r0% %r1%"
-	bx lr
-	
-hook_02044FE8:
-	print "malloc %r0% %r1% %r2%"
-	bx lr
-hook_0204500C:
-	print "       %r0%"
-	bx lr
-	*/
-	
 hook_02009D34:
 	print "Free File Cache %r0% %r1%"
 	bx lr
 
-rssepl_02006ADC:
-	mov r7, #2
-	bx lr
-	
-/*
-repl_0215E3DC:
-	bx lr
-	*/
+hook_02040B68:
+print "CREATE SPRITE\n"
+print "ClassID = %r0%\n"
+print "Settings = %r1%\n"
+print "Pos = %r2%\n"
+print "Unk = %r3%\n"
+print "\n"
+bx lr
 
-hook_020A18A4:
-	print "ExitLevel %r0%"
-	ldr r1, =exitType
-	str r0, [r1]
+hook_0204D670:
+print "FindActorByType %r0% %r1%\n"
+bx lr
+hook_0204D69C:
+print "FindActorByType returns %r0%\n"
+print "\n"
+bx lr
+
+
+hook_0201318C:
+print "CREATEOBJ\n"
+print "ClassID = %r0%\n"
+@cmp r0, #0xF0
+@crap: beq crap
+
+print "Parent = %r1%\n"
+print "Settings = %r2%\n"
+print "Category = %r3%\n"
+print "\n"
+bx lr
+
+hook_020131A0:
+print "CREATEOBJ returns %r0%\n"
+print "\n"
+bx lr
+
+nsub_0209E7D0:
+print "MERP BLOCK %r0% %r1% %r2%"
+print "                  %r3%      %r14%"
 	bx lr
+
