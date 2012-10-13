@@ -144,8 +144,9 @@ print "CREATEOBJ returns %r0%\n"
 print "\n"
 bx lr
 
+/*
 nsub_0209E7D0:
 print "MERP BLOCK %r0% %r1% %r2%"
 print "                  %r3%      %r14%"
 	bx lr
-
+*/

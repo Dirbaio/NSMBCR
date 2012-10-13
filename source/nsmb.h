@@ -18,16 +18,16 @@ extern "C"
 	void nocashPrint3(const char* txt, u32 r0, u32 r1, u32 r2);
 	
 	void CARDi_ReadRom(u32 dma,
-    	const void* src, void* dst, u32 len, 
-	    u32 callback, void *arg, bool is_async);
+ 	const void* src, void* dst, u32 len, 
+	 u32 callback, void *arg, bool is_async);
 	void OSi_ReadCardRom32Hax(void* src, void* dest, u32 len);
 	
 	u32 loadCompressedFile(u32 fileID, void* dest);
 	void* findActorByType(short classId, int from);
 	u32 getTileBehaviorAtPos2(u32 x, u32 y);
 	
-    void ChangeSceneIfNeeded();
-    
+ void ChangeSceneIfNeeded();
+ 
 	void FS_Init( u32 unk );
 	u16* G2_GetBG2CharPtr();
 	void GX_DispOn();
@@ -63,7 +63,12 @@ extern "C"
 	int loadFileByExtId_LZ_Dest(ExtId id, void* dest); //Returns size
 
 	void* allocFromCacheTable(int size);
-		
+	
+	//Threading funcs
+	typedef u8 OSThread[0xC0];
+	void OS_CreateThread(OSThread* thread, void (*func)(void*), void* arg, void* stack, u32 stackSize, u32 prio); 
+	void OS_WakeupThreadDirect(OSThread* thread);
+
 #ifdef __cplusplus
 }
 #endif
@@ -117,10 +122,10 @@ struct MarioActor
 	u32 unk0A8; //PIPE RELATED
 	u32 unk0AC;
 	u32 unk0B0;
-	u8  unk0B4; // collision related hmmm
-	u8  unk0B5;
-	u8  unk0B6;
-	u8  unk0B7;
+	u8 unk0B4; // collision related hmmm
+	u8 unk0B5;
+	u8 unk0B6;
+	u8 unk0B7;
 	u32 unk0B8;
 	u32 unk0BC;
 	u32 unk0C0;
@@ -886,8 +891,8 @@ struct SaveData
 extern SaveData saveData;
 
 #define KEYS_CR			(*(vu32*)0x04000130)
-#define START_REG       (*(vu32*)0x023FFC20)
-#define PRINT_REG       (*(vu32*)0x04FFF010)
+#define START_REG (*(vu32*)0x023FFC20)
+#define PRINT_REG (*(vu32*)0x04FFF010)
 
 inline void print(const char* s)
 {
@@ -905,19 +910,19 @@ int myKeysDown();
 #define A 		0x0001
 #define B 		0x0002
 #define SELECT 	0x0004
-#define START   0x0008
-#define LEFT    0x0010
-#define RIGHT   0x0020
-#define UP      0x0040
-#define DOWN    0x0080
-#define SRIGHT  0x0100
-#define SLEFT   0x0200
-#define X       0x0400
-#define Y       0x0800
-#define TOUCH   0x2000
-#define HINGE   0x8000
-#define pressedKeys  (*(vu16*)0x020888E2) 
+#define START 0x0008
+#define LEFT 0x0010
+#define RIGHT 0x0020
+#define UP 0x0040
+#define DOWN 0x0080
+#define SRIGHT 0x0100
+#define SLEFT 0x0200
+#define X 0x0400
+#define Y 0x0800
+#define TOUCH 0x2000
+#define HINGE 0x8000
+#define pressedKeys (*(vu16*)0x020888E2) 
 
-#define controlOptionsA  (*(bool*)0x02088f24)
-#define controlOptionsB  (*(bool*)0x02085ad4) //Both are mirrors of the same. 01 if B and A jump, 00 if X and A jump
+#define controlOptionsA (*(bool*)0x02088f24)
+#define controlOptionsB (*(bool*)0x02085ad4) //Both are mirrors of the same. 01 if B and A jump, 00 if X and A jump
 
