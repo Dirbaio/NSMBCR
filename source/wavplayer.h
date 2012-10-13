@@ -5,12 +5,10 @@
 
 //Variables that tune playback.
 #define bitdepth 1
-#define minNewData 4096
-#define audiobuffer_size 16384
-#define mainbuffer_size (audiobuffer_size*2)
+#define audiobuffer_size (16384)
 #define channels 2
 #define rate 24576
-#define alignMask (~2047)
+#define rate 32768
 
 class wavPlayer
 {
@@ -19,7 +17,6 @@ class wavPlayer
 	u8 fileLeft[512];
 	u8 fileRight[512];
 	
-//	u8 mainbuffer [mainbuffer_size*bitdepth];
 	u8 audiobufferLeft[audiobuffer_size*bitdepth];
 	u8 audiobufferRight[audiobuffer_size*bitdepth];
 	
@@ -48,7 +45,7 @@ class wavPlayer
 	void playFile(int fileid);
 	void stop();
 	
-	void update();
+	bool update();
 };
 
 #endif

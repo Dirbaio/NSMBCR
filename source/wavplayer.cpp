@@ -34,6 +34,7 @@ void AS_SetTimer(int freq)
 
 void wavPlayer::seek(int pos)
 {
+//	nocashPrint1("SEEK %r0% %r1%", pos);
 	if(pos < 0) error("Negative seek!");
 
 	FS_SeekFile(fileLeft, pos*bitdepth, 0);
@@ -42,7 +43,7 @@ void wavPlayer::seek(int pos)
 	fileCursor = pos;
 }
 
-void wavPlayer::update()
+bool wavPlayer::update()
 {
 	if(fileCursor >= loopEnd)
 		seek(loopBegin);
@@ -52,30 +53,29 @@ void wavPlayer::update()
 
 	//Find out how many new samples should we push to the buffer.
 	int curtimer = TIMER3_DATA;	
-	int newdata = curtimer - prevtimer;
-	if(newdata < 0) newdata += 65536; //Timer wraps around at 2^16
-	
-	if(newdata > audiobuffer_size) newdata = audiobuffer_size;
-	if(newdata > loopEnd - fileCursor) newdata = loopEnd - fileCursor;
-	if(newdata > audiobuffer_size - buffercursor) newdata = audiobuffer_size - buffercursor;
-	
-	newdata &= alignMask;
-//	if(newdata < minNewData)
-//		return;
+	int newData = curtimer - prevtimer;
+	if(newData < 0) newData += 65536; //Timer wraps around at 2^16
 
-	if(!newdata) return;
-	
-	prevtimer = (prevtimer+newdata)%65536;
+	if(newData > audiobuffer_size - buffercursor)
+		newData = audiobuffer_size - buffercursor;
 
-	int len = newdata*bitdepth;
+	int readBegin = fileCursor;
+	int readEnd = fileCursor + newData;
+	
+	if(readEnd >= loopEnd) readEnd = loopEnd;
+	
+	newData = (readEnd-readBegin);
+	prevtimer = (prevtimer+newData)%65536;
+
 	int pos = buffercursor*bitdepth;
-
-//	nocashPrint2("Read %r0% %r1%", len, pos);
-	FS_ReadFileAsync(fileLeft, audiobufferLeft+pos, len);
-	FS_ReadFileAsync(fileRight, audiobufferRight+pos, len);
+	int len = newData*bitdepth;
+	FS_ReadFile(fileLeft, audiobufferLeft+pos, len);
+	FS_ReadFile(fileRight, audiobufferRight+pos, len);
 	
-	fileCursor += newdata;
-	buffercursor += newdata;
+	fileCursor += newData;
+	buffercursor += newData;
+
+	return true;
 }
 
 void wavPlayer::setLoopPart(int p, int mode)
@@ -139,16 +139,16 @@ void wavPlayer::playFile(int fileid)
 
 	nocashPrint("Files opened!");
 
-	loopBegin = 0;
-	loopEnd = spb*4*32*5;
-	loopEnd &= alignMask;
+	loopBegin = spb*4*8;
+	loopEnd = spb*4*8*5;
+//	loopEnd &= alignMask;
 
 	memset(audiobufferLeft, 0, sizeof(audiobufferLeft));
 	memset(audiobufferRight, 0, sizeof(audiobufferRight));
 	
 	SND_SetupChannelPcm(0, bitdepth==2?1:0, audiobufferLeft, 1, 0, audiobuffer_size*bitdepth/4, 127, 0, 16777216 / rate , 0);
-	SND_SetupChannelPcm(2, bitdepth==2?1:0, audiobufferRight, 1, 0, audiobuffer_size*bitdepth/4, 127, 0, 16777216 / rate, 127);
-	SND_StartTimer(5, 0, 0, 0);
+	SND_SetupChannelPcm(1, bitdepth==2?1:0, audiobufferRight, 1, 0, audiobuffer_size*bitdepth/4, 127, 0, 16777216 / rate, 127);
+	SND_StartTimer(3, 0, 0, 0);
 
 //	leftSoundID = soundPlaySample(audiobufferLeft, SoundFormat_16Bit, audiobuffer_size*bitdepth, rate, 127, 0, true, 0);
 //	rightSoundID = soundPlaySample(audiobufferRight, SoundFormat_16Bit, audiobuffer_size*bitdepth, rate, 127, 127, true, 0);

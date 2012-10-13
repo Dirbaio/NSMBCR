@@ -22,8 +22,7 @@ void repl_02004EB4()
 	OS_WakeupThreadDirect(&streamThread);
 	
 	//Lock channel 0
-	SND_LockChannel(0x0005, 0);
-	SND_LockChannel(0xFFFF, 0);
+	SND_LockChannel(0x0003, 0);
 	player.playFile(177);
 	
 	GX_DispOn();

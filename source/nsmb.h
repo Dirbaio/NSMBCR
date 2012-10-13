@@ -45,7 +45,8 @@ extern "C"
 	bool FS_SeekFile( void *p_file, s32 offset, int origin );
 	s32 FS_ReadFile( void *p_file, void *dst, s32 len );
 	s32 FS_ReadFileAsync( void *p_file, void *dst, s32 len );
-
+	bool FS_WaitAsync(void* p_file);
+	
 	void* allocFromGameHeap(u32 len);
 	void freeToGameHeap(void* ptr);
 
