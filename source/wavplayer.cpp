@@ -37,14 +37,17 @@ void wavPlayer::seek(int pos)
 //	nocashPrint1("SEEK %r0% %r1%", pos);
 	if(pos < 0) error("Negative seek!");
 
-	FS_SeekFile(fileLeft, pos*bitdepth, 0);
-	FS_SeekFile(fileRight, pos*bitdepth, 0);
+	FS_SeekFile(&fileLeft, pos*bitdepth, 0);
+	FS_SeekFile(&fileRight, pos*bitdepth, 0);
 
 	fileCursor = pos;
 }
 
 bool wavPlayer::update()
 {
+	if(!playing || paused)
+		return false;
+
 	if(fileCursor >= loopEnd)
 		seek(loopBegin);
 	
@@ -69,8 +72,8 @@ bool wavPlayer::update()
 
 	int pos = buffercursor*bitdepth;
 	int len = newData*bitdepth;
-	FS_ReadFile(fileLeft, audiobufferLeft+pos, len);
-	FS_ReadFile(fileRight, audiobufferRight+pos, len);
+	FS_ReadFile(&fileLeft, audiobufferLeft+pos, len);
+	FS_ReadFile(&fileRight, audiobufferRight+pos, len);
 	
 	fileCursor += newData;
 	buffercursor += newData;
@@ -126,22 +129,30 @@ void wavPlayer::setLoopPart(int p, int mode)
 
 void wavPlayer::playFile(int fileid)
 {
-	int err;
-	stopped = false;
-	newLoop = false;
-	
-	FS_InitFile(fileLeft);
-	FS_InitFile(fileRight);
-	if(!FS_OpenFileFast(fileLeft, 0x02096114, fileid))
+	if(playing) return;
+	FS_InitFile(&fileLeft);
+	FS_InitFile(&fileRight);
+	if(!FS_OpenFileFast(&fileLeft, 0x02096114, fileid))
 		error("Cant open file left");
-	if(!FS_OpenFileFast(fileRight, 0x02096114, fileid+1))
+	if(!FS_OpenFileFast(&fileRight, 0x02096114, fileid+1))
 		error("Cant open file right");
-
-	nocashPrint("Files opened!");
 
 	loopBegin = spb*4*8;
 	loopEnd = spb*4*8*5;
-//	loopEnd &= alignMask;
+
+	seek(0);
+	paused = true;
+	playing = true;
+	unpause();
+}
+
+void wavPlayer::unpause()
+{
+	if(!playing || !paused) return;
+
+	AS_SetTimer(rate);
+	buffercursor = audiobuffer_size/2;
+	prevtimer = TIMER3_DATA;
 
 	memset(audiobufferLeft, 0, sizeof(audiobufferLeft));
 	memset(audiobufferRight, 0, sizeof(audiobufferRight));
@@ -150,99 +161,29 @@ void wavPlayer::playFile(int fileid)
 	SND_SetupChannelPcm(1, bitdepth==2?1:0, audiobufferRight, 1, 0, audiobuffer_size*bitdepth/4, 127, 0, 16777216 / rate, 127);
 	SND_StartTimer(3, 0, 0, 0);
 
-//	leftSoundID = soundPlaySample(audiobufferLeft, SoundFormat_16Bit, audiobuffer_size*bitdepth, rate, 127, 0, true, 0);
-//	rightSoundID = soundPlaySample(audiobufferRight, SoundFormat_16Bit, audiobuffer_size*bitdepth, rate, 127, 127, true, 0);
-
-	AS_SetTimer(rate);
-	
-	buffercursor = audiobuffer_size/2;
-	prevtimer = 0;
-	fileCursor = 0;
-	
-	destroyed = false;
+	paused = false;
 }
-/*
-wavPlayer::~wavPlayer()
+
+void wavPlayer::pause()
 {
-	destroyed = true;
-	//TODO Close file
-	AS_SetTimer(0);
-}*/
+	if(!playing || paused) return;
+	SND_StopTimer(3, 0, 0, 0);
+	paused = true;
+}
 
+void wavPlayer::stop()
+{
+	if(!playing) return;
+	nocashPrint("STOOOOOOOOOP");
+	SND_StopTimer(3, 0, 0, 0);
+	playing = false;
+	FS_CloseFile(&fileLeft);
+	FS_CloseFile(&fileRight);
+}
 
-asm (
-"@--------------------------------------------------------------------------------------\n"
-"    .text                                                                              \n"
-"    .arm                                                                               \n"
-"                                                                                       \n"
-"@ desinterleave an mp3 stereo source                                                   \n"
-"@ r0 = interleaved data, r1 = left, r2 = right, r3 = len                               \n"
-"                                                                                       \n"
-"    .global AS_StereoDesinterleave                                                     \n"
-"                                                                                       \n"
-"AS_StereoDesinterleave:                                                                \n"
-"    stmfd sp!, {r4-r11}                                                                \n"
-"                                                                                       \n"
-"_loop:                                                                                 \n"
-"                                                                                       \n"
-"    ldmia r0!, {r4-r12}                                                                \n"
-"                                                                                       \n"
-"    strh r4, [r1], #2                                                                  \n"
-"    mov r4, r4, lsr #16                                                                \n"
-"    strh  r4, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r5, [r1], #2                                                                  \n"
-"    mov r5, r5, lsr #16                                                                \n"
-"    strh  r5, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r6, [r1], #2                                                                  \n"
-"    mov r6, r6, lsr #16                                                                \n"
-"    strh  r6, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r7, [r1], #2                                                                  \n"
-"    mov r7, r7, lsr #16                                                                \n"
-"    strh  r7, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r8, [r1], #2                                                                  \n"
-"    mov r8, r8, lsr #16                                                                \n"
-"    strh  r8, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r9, [r1], #2                                                                  \n"
-"    mov r9, r9, lsr #16                                                                \n"
-"    strh  r9, [r2], #2                                                                 \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r10, [r1], #2                                                                 \n"
-"    mov r10, r10, lsr #16                                                              \n"
-"    strh  r10, [r2], #2                                                                \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r11, [r1], #2                                                                 \n"
-"    mov r11, r11, lsr #16                                                              \n"
-"    strh  r11, [r2], #2                                                                \n"
-"    subs r3, #1                                                                        \n"
-"    beq _done                                                                          \n"
-"                                                                                       \n"
-"    strh r12, [r1], #2                                                                 \n"
-"    mov r12, r12, lsr #16                                                              \n"
-"    strh  r12, [r2], #2                                                                \n"
-"    subs r3, #1                                                                        \n"
-"    bne _loop                                                                          \n"
-"_done:                                                                                 \n"
-"                                                                                       \n"
-"    ldmia sp!, {r4-r11}                                                                \n"
-"    bx lr                                                                              \n"
-"@--------------------------------------------------------------------------------------\n"
-);
+void wavPlayer::init()
+{
+	playing = false;
+	paused = false;
+}
+

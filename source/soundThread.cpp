@@ -13,19 +13,43 @@ OSThread streamThread;
 void streamThreadMain(void* arg)
 {
 	while(1)
+	{
 		player.update();
+		waitForVblank();
+	}
 }
 
 void repl_02004EB4()
 {
+	player.init();
+	
 	OS_CreateThread(&streamThread, streamThreadMain, NULL, streamThreadStack+STREAM_THREAD_STACKSIZE, STREAM_THREAD_STACKSIZE, 17);
 	OS_WakeupThreadDirect(&streamThread);
 	
-	//Lock channel 0
+	//Lock channels 0 and 1
 	SND_LockChannel(0x0003, 0);
-	player.playFile(177);
-	
+
 	GX_DispOn();
+}
+
+void everyFrame()
+{
+	if(myKeysDown() & KEY_L)
+		player.unpause();
+	
+	if(myKeysDown() & KEY_R)
+		player.pause();
+}
+
+//NNS_SndArcPlayerStartSeq
+void nsub_02060244(u32 crap, u32 seqNumber)
+{
+	player.playFile(177);
+}
+
+void stopStream()
+{
+	player.stop();
 }
 
 //Disable sound capture.

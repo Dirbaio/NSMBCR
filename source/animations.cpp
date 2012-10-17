@@ -185,5 +185,5 @@ void hook_020AE318()
 {
 	animationFile = (u16*) allocFromCacheTable(4096);
 	loadFileByExtId_LZ_Dest(48, animationFile); //wrecking_crew.narc
-	nocashPrint1("Animations loaded! %r0%", (u32)animationFile);
+//	nocashPrint1("Animations loaded! %r0%", (u32)animationFile);
 }

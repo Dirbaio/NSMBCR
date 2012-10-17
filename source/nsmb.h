@@ -12,47 +12,44 @@ extern "C"
 	
 	void changeTile(void* scenePtr, int x, int y, int tile);
 	
-	void nocashPrint(const char* txt);
-	void nocashPrint1(const char* txt, u32 r0);
-	void nocashPrint2(const char* txt, u32 r0, u32 r1);
-	void nocashPrint3(const char* txt, u32 r0, u32 r1, u32 r2);
-	
-	void CARDi_ReadRom(u32 dma,
- 	const void* src, void* dst, u32 len, 
-	 u32 callback, void *arg, bool is_async);
-	void OSi_ReadCardRom32Hax(void* src, void* dest, u32 len);
-	
 	u32 loadCompressedFile(u32 fileID, void* dest);
 	void* findActorByType(short classId, int from);
 	u32 getTileBehaviorAtPos2(u32 x, u32 y);
 	
- void ChangeSceneIfNeeded();
+	void ChangeSceneIfNeeded();
  
-	void FS_Init( u32 unk );
 	u16* G2_GetBG2CharPtr();
 	void GX_DispOn();
 
-	void SND_LockChannel( u32 chBitMask, u32 flags );
-	void SND_SetupChannelPsg(int chNo, int duty, int volume, int shift, int timer, int pan );
-
-	void SND_SetupChannelPcm(int chNo, int format, const void* dataAddr, int loop,
-		int loopStart, int dataLen, int volume, int shift, int timer, int pan );
-	void SND_StartTimer(u32 chBitMask, u32 capBitMask, u32 alarmBitMask, u32 flags );
-
-
-	void FS_InitFile( void *p_file );
-	bool FS_OpenFileFast( void *p_file, u32 archivePtr, int file_id );
-	bool FS_SeekFile( void *p_file, s32 offset, int origin );
-	s32 FS_ReadFile( void *p_file, void *dst, s32 len );
-	s32 FS_ReadFileAsync( void *p_file, void *dst, s32 len );
-	bool FS_WaitAsync(void* p_file);
-	
-	void* allocFromGameHeap(u32 len);
-	void freeToGameHeap(void* ptr);
-
-	void OS_Panic();
 	void loadLevel(int sceneId, bool mvsl, int world, int level, int area, int playerNum, int playerMask, int playerChar1, int playerChar2, int unk1, int unk2, int unk3);
 
+	//Printing
+	void nocashPrint(const char* txt);
+	void nocashPrint1(const char* txt, u32 r0);
+	void nocashPrint2(const char* txt, u32 r0, u32 r1);
+	void nocashPrint3(const char* txt, u32 r0, u32 r1, u32 r2);
+
+	//Misc
+	void OS_Panic();
+	void waitForVblank();
+
+	//Allocation
+	void* allocFromGameHeap(u32 len);
+	void freeToGameHeap(void* ptr);
+	void* allocFromCacheTable(int size);
+	
+	//File funcs
+
+	typedef u8 FSFile[0x48];
+	void FS_InitFile(FSFile *p_file);
+	void FS_CloseFile(FSFile *p_file);
+	bool FS_OpenFileFast(FSFile *p_file, u32 archivePtr, int file_id);
+	bool FS_SeekFile(FSFile *p_file, s32 offset, int origin);
+	s32 FS_ReadFile(FSFile *p_file, void *dst, s32 len);
+	s32 FS_ReadFileAsync(FSFile *p_file, void *dst, s32 len);
+	bool FS_WaitAsync(FSFile* p_file);
+		
+	//NSMB-specific file funcs
 	typedef u32 ExtId;
 	
 	void* loadFileByExtId(ExtId id);
@@ -63,12 +60,17 @@ extern "C"
 	void* loadFileByExtId_LZ(ExtId id);
 	int loadFileByExtId_LZ_Dest(ExtId id, void* dest); //Returns size
 
-	void* allocFromCacheTable(int size);
-	
 	//Threading funcs
 	typedef u8 OSThread[0xC0];
 	void OS_CreateThread(OSThread* thread, void (*func)(void*), void* arg, void* stack, u32 stackSize, u32 prio); 
 	void OS_WakeupThreadDirect(OSThread* thread);
+
+	//Sound funcs
+	void SND_LockChannel(u32 chBitMask, u32 flags);
+	void SND_SetupChannelPsg(int chNo, int duty, int volume, int shift, int timer, int pan);
+	void SND_SetupChannelPcm(int chNo, int format, const void* dataAddr, int loop, int loopStart, int dataLen, int volume, int shift, int timer, int pan);
+	void SND_StartTimer(u32 chBitMask, u32 capBitMask, u32 alarmBitMask, u32 flags);
+	void SND_StopTimer(u32 chBitMask, u32 capBitMask, u32 alarmBitMask, u32 flags);
 
 #ifdef __cplusplus
 }
@@ -893,19 +895,6 @@ extern SaveData saveData;
 
 #define KEYS_CR			(*(vu32*)0x04000130)
 #define START_REG (*(vu32*)0x023FFC20)
-#define PRINT_REG (*(vu32*)0x04FFF010)
-
-inline void print(const char* s)
-{
-	PRINT_REG = (u32) s;
-}
-
-#endif
-
-//Custom key reading funcs.
-void myScanKeys();
-int myKeysHeld();
-int myKeysDown();
 
 
 #define A 		0x0001
@@ -926,4 +915,12 @@ int myKeysDown();
 
 #define controlOptionsA (*(bool*)0x02088f24)
 #define controlOptionsB (*(bool*)0x02085ad4) //Both are mirrors of the same. 01 if B and A jump, 00 if X and A jump
+
+//Custom key reading funcs.
+void myScanKeys();
+int myKeysHeld();
+int myKeysDown();
+
+#endif
+
 

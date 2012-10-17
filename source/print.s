@@ -70,7 +70,7 @@ b 1f
 @=================================
 @=================================
 
-
+/*
 hook_02006970:
 	@Complicated printing from stack in here :(
 	print "LoadLevel %r0% %r1%"
@@ -109,44 +109,59 @@ hook_02009D34:
 	print "Free File Cache %r0% %r1%"
 	bx lr
 
-hook_02040B68:
-print "CREATE SPRITE\n"
-print "ClassID = %r0%\n"
-print "Settings = %r1%\n"
-print "Pos = %r2%\n"
-print "Unk = %r3%\n"
-print "\n"
-bx lr
-
-hook_0204D670:
-print "FindActorByType %r0% %r1%\n"
-bx lr
-hook_0204D69C:
-print "FindActorByType returns %r0%\n"
-print "\n"
-bx lr
-
-
-hook_0201318C:
-print "CREATEOBJ\n"
-print "ClassID = %r0%\n"
-@cmp r0, #0xF0
-@crap: beq crap
-
-print "Parent = %r1%\n"
-print "Settings = %r2%\n"
-print "Category = %r3%\n"
-print "\n"
-bx lr
-
-hook_020131A0:
-print "CREATEOBJ returns %r0%\n"
-print "\n"
-bx lr
-
-/*
-nsub_0209E7D0:
-print "MERP BLOCK %r0% %r1% %r2%"
-print "                  %r3%      %r14%"
+	
+	hook_02040B68:
+	print "CREATE SPRITE"
+	print "ClassID = %r0%"
+	print "Settings = %r1%"
+	print "Pos = %r2%"
+	print "Unk = %r3%"
+	print ""
 	bx lr
-*/
+
+	hook_0204D670:
+	print "FindActorByType %r0% %r1%"
+	bx lr
+	hook_0204D69C:
+	print "FindActorByType returns %r0%"
+	print ""
+	bx lr
+
+
+	hook_0201318C:
+	print "CREATEOBJ"
+	print "ClassID = %r0%"
+	@cmp r0, #0xF0
+	@crap: beq crap
+
+	print "Parent = %r1%"
+	print "Settings = %r2%"
+	print "Category = %r3%"
+	print ""
+	bx lr
+
+	hook_020131A0:
+	print "CREATEOBJ returns %r0%"
+	print ""
+	bx lr
+
+	*/
+
+hook_020601C0:
+	print "NNS_SndArcPlayerStartSeqArc %r0% %r1% %r2%"
+	bx lr
+
+nsub_02060244:
+	print "NNS_SndArcPlayerStartSeq %r0% %r1%"
+	bx lr
+	
+nsub_0205DE9C:
+	print "NNS_SndPlayerStopSeq %r0% %r1%"
+	ldr r12, =0x0208FC08
+	cmp r0, r12
+	beq _Z10stopStreamv
+	
+	ldr r12, =NNSi_SndPlayerStopSeq
+	ldr r0, [r0]
+	bx r12
+

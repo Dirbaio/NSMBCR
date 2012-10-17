@@ -12,6 +12,7 @@ void myLoadLevel(int world, int level)
 	scene35Flag = 2;
 }
 
+void everyFrame();
 void hook_020123DC()
 {
 //	void loadLevel(int sceneId, bool mvsl, int world, int level, int area, int playerNum, int playerMask, int playerChar1, int playerChar2, int unk1, int unk2, int unk3);
@@ -19,6 +20,8 @@ void hook_020123DC()
 	
 	if(myKeysDown() & KEY_SELECT)
 		myLoadLevel(0, 0);
+	everyFrame();
+	
 //		OS_Panic(); <<- lol.
 }
 
