@@ -147,21 +147,31 @@ hook_02009D34:
 
 	*/
 
+/*
+hook_02060248:
+	print "NNS_SndPlayerStartSeq %r0% %r1%"
+	bx lr
+	
 hook_020601C0:
 	print "NNS_SndArcPlayerStartSeqArc %r0% %r1% %r2%"
-	bx lr
+	bx lr*/
 
-nsub_02060244:
-	print "NNS_SndArcPlayerStartSeq %r0% %r1%"
+/*
+hook_0204E5B4:
+	print "startMusic %r0%"
 	bx lr
-	
-nsub_0205DE9C:
-	print "NNS_SndPlayerStopSeq %r0% %r1%"
-	ldr r12, =0x0208FC08
-	cmp r0, r12
-	beq _Z10stopStreamv
-	
+hook_0204E480:
+	print "pauseMusic %r0%"
+	bx lr
+hook_0204E430:
+	print "stopMusic %r0%"
+	bx lr
+*/
+/*
+nsub_0205DE98:
+@	print "NNS_SndPlayerStopSeq %r0% %r1%"
+
 	ldr r12, =NNSi_SndPlayerStopSeq
 	ldr r0, [r0]
 	bx r12
-
+*/

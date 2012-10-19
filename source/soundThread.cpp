@@ -41,19 +41,28 @@ void everyFrame()
 		player.pause();
 }
 
-//NNS_SndArcPlayerStartSeq
-void nsub_02060244(u32 crap, u32 seqNumber)
+//startMusic
+void nsub_0204E5AC(int musicId)
 {
+	if(player.isPlaying())
+		player.stop();
 	player.playFile(177);
 }
 
-void stopStream()
+//stopMusic
+void nsub_0204E420(int musicId)
 {
 	player.stop();
 }
 
-//Disable sound capture.
-void nsub_0204F1DC()
+//pauseMusic
+void nsub_0204E47C(bool pause)
 {
-
+	if(pause)
+		player.pause();
+	else
+		player.unpause();
 }
+
+//Disable sound capture.
+void nsub_0204F1DC() {}

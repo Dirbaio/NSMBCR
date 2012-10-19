@@ -174,11 +174,15 @@ void wavPlayer::pause()
 void wavPlayer::stop()
 {
 	if(!playing) return;
-	nocashPrint("STOOOOOOOOOP");
 	SND_StopTimer(3, 0, 0, 0);
 	playing = false;
 	FS_CloseFile(&fileLeft);
 	FS_CloseFile(&fileRight);
+}
+
+bool wavPlayer::isPlaying()
+{
+	return playing;
 }
 
 void wavPlayer::init()

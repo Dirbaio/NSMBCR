@@ -50,6 +50,7 @@ class wavPlayer
 	void unpause();
 	
 	bool update();
+	bool isPlaying();
 };
 
 #endif
