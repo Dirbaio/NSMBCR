@@ -14,7 +14,9 @@ void streamThreadMain(void* arg)
 {
 	while(1)
 	{
+//		nocashPrint1("Before: %r0%", DMA2_CR);
 		player.update();
+//		nocashPrint1("After: %r0%", DMA2_CR);
 		waitForVblank();
 	}
 }
@@ -23,7 +25,7 @@ void repl_02004EB4()
 {
 	player.init();
 	
-	OS_CreateThread(&streamThread, streamThreadMain, NULL, streamThreadStack+STREAM_THREAD_STACKSIZE, STREAM_THREAD_STACKSIZE, 30);
+	OS_CreateThread(&streamThread, streamThreadMain, NULL, streamThreadStack+STREAM_THREAD_STACKSIZE, STREAM_THREAD_STACKSIZE, 20);
 	OS_WakeupThreadDirect(&streamThread);
 	
 	//Lock channels 0 and 1

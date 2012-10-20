@@ -58,7 +58,7 @@ bool wavPlayer::update()
 	int curtimer = TIMER3_DATA;	
 	int newData = curtimer - prevtimer;
 	if(newData < 0) newData += 65536; //Timer wraps around at 2^16
-
+//	if(newData > 16) newData = 16;
 	if(newData > audiobuffer_size - buffercursor)
 		newData = audiobuffer_size - buffercursor;
 

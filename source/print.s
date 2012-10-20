@@ -15,20 +15,20 @@ nocashPrint3:
 	ldr r4, =msgData
 	mov r5, #0
 	
-  loop:
+loop:
 		ldrb r6, [r0]
-		cmp r6, #0
-		beq printMsg
 		cmp r5, #120
 		beq printMsg
 		strb r6, [r4]
+		cmp r6, #0
+		beq printMsg
 		
 		add r0, r0, #0x1
 		add r4, r4, #0x1
 		add r5, r5, #0x1
-		b loop
+	b loop
 		
-  printMsg:
+printMsg:
 	mov r0, r1
 	mov r1, r2
 	mov r2, r3
@@ -36,14 +36,13 @@ nocashPrint3:
 	mov  r12,r12
 	b    continue83
 	.word  0x6464
-  msgData:
+msgData:
 	.fill 120
-	.byte  0                @ending zero (normally not required, see below)
-	.align 4               @align following code (use align 2 in thumb mode)
-  continue83:
-
+	.byte  0
+	.align 4
+continue83:
 	pop {r4-r9}
-bx lr
+	bx lr
 
 
 @=================================
@@ -167,6 +166,8 @@ hook_0204E430:
 	print "stopMusic %r0%"
 	bx lr
 */
+
+
 /*
 nsub_0205DE98:
 @	print "NNS_SndPlayerStopSeq %r0% %r1%"
