@@ -23,7 +23,7 @@ void repl_02004EB4()
 {
 	player.init();
 	
-	OS_CreateThread(&streamThread, streamThreadMain, NULL, streamThreadStack+STREAM_THREAD_STACKSIZE, STREAM_THREAD_STACKSIZE, 17);
+	OS_CreateThread(&streamThread, streamThreadMain, NULL, streamThreadStack+STREAM_THREAD_STACKSIZE, STREAM_THREAD_STACKSIZE, 30);
 	OS_WakeupThreadDirect(&streamThread);
 	
 	//Lock channels 0 and 1
