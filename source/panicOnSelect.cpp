@@ -12,12 +12,6 @@ void myLoadLevel(int world, int level)
 	scene35Flag = 2;
 }
 
-//Replace entrnaces.
-//TODO: Make it goto any level based on entrance settings.
-void nsub_0201E744()
-{
-	myLoadLevel(1, 2);
-}
 
 void everyFrame();
 void hook_020123DC()

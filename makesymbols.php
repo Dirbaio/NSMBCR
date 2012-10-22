@@ -1,5 +1,5 @@
 <?php
-$handle = @fopen("nsmb.idc", "r");
+$handle = @fopen("symbols.idc", "r");
 if (!$handle) die("Error opening file");
 
 while (($buffer = fgets($handle, 4096)) !== false)
