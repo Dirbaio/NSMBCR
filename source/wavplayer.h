@@ -10,6 +10,11 @@
 #define channels 2
 #define rate 32768
 
+struct LoopInfo
+{
+	int begin;
+	int end;
+};
 class wavPlayer
 {
 	private:
@@ -28,21 +33,13 @@ class wavPlayer
 
 	void seek(int pos);
 	
-	int loopBegin;
-	int loopEnd;
+	LoopInfo loop;
 
-	bool newLoop;
-	int loopNewBegin;
-	int loopNewEnd;
-	int loopNewCursor;
-	int loopNewMode;
-		
 	int fileCursor;
 
 	public:
 	void init();
 	
-	void setLoopPart(int p, int mode);
 	void playFile(int fileid);
 	void stop();
 	
